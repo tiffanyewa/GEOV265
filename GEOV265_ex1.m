@@ -1,0 +1,262 @@
+%% Exercise Set 1 GEOV265 - Tiffany Ajayi
+
+%% Question 1: Matlab commands and matrices
+
+% 1a) 
+
+    Matrix = ones(200,300)*9 + eye(200,300)*-13;
+    Matrix(1,:)=-4;
+    Matrix(200,:)=-4;
+
+% 1b)
+
+    a = [3:6:117].^4;
+    b = [-6:-6:-120].^4;
+
+    total = sum(a)-sum(b)
+
+   
+    x = [3:3:120].^4;
+
+    s=1;
+    t = 0;
+    for i =(x)
+        s = s+1;
+        d = (-1)^s;
+
+        t = t+d*i;
+
+    end 
+
+    tot = sum(t)
+
+clear vars
+
+
+%% Question 2: Matlab and Seismology
+
+seis1 = rand(20,7);
+seis2 = rand(7,20);
+
+% 2a)
+
+    Ptime = seis1(:,7);
+    Pav = mean(Ptime(:));
+
+
+% 2b) 
+
+    Tseis2 = seis2';
+
+    seis3 = [seis1;Tseis2];
+
+% 2c)
+
+    colat = seis3(:,4);
+    lat = 90-colat;
+    sesi3(:,4)= lat;
+
+
+% 2d)
+
+    last20 = seis3((end-19):end,:);
+
+    radius = ones(20,1)*6371;
+
+    % taking out the latitude and longitude for the last 20 sources
+
+    xlat = last20(:,1);
+    xlon = last20(:,2);
+    
+    % taking out the latitude and lognitude for the last 20 receivers
+
+    plat = last20(:,4);
+    plon = last20(:,5);
+    
+    % using comando sph2cart to get the cartesians coordinates
+
+    [xx,yy,zz]=sph2cart(xlon,xlat,radius);
+
+    p1= ([xx,yy,zz])';
+
+    [pp,qq,tt]=sph2cart(plon,plat,radius);
+
+    p2 = ([pp,qq,tt])';
+
+    % computing the dot product and the norm 
+
+    epidis = acos(dot(p1,p2)./(norm(p1)*norm(p2)))
+
+
+
+ %% 2e)
+
+    first30 = seis3(1:30,:);
+
+    radius1 = ones(30,1)*6371;
+
+    lat1 = first30(:,1);
+    lon1 = first30(:,2);
+    
+
+    lat2=first30(:,4);
+    lon2 = first30(:,5);
+   
+
+   
+     [x1,y1,z1]=sph2cart(lat1,lon1,radius1);
+    
+     p11= ([x1 y1, z1])';
+
+     [x2,y2,z2]=sph2cart(lat2,lon2,radius1);
+
+     p22 = ([x2 y2,z2])';
+
+
+     epidis1 = acos(dot(p11,p22)./(norm(p11)*norm(p22)));
+
+  
+  
+      r = 6371;
+      y = r*sin(epidis1/2);
+    
+      k1 = sqrt(r^2-y.^2);
+      Delta = 6371-2990;
+      k2 = k1-Delta;
+      r2 = sqrt(k2.^2+y.^2);
+      hyp= 2*r2;
+    
+      PcP_t = (hyp/10.5)/60
+
+clear vars
+
+
+ %% Question 3: Magma Chamber Dynamics
+
+ % 3a)
+    
+     % volume of the source
+     vol = 5^3 *1e-9;
+
+     % reciever point
+     y = [3,2,0.6];
+
+     % Source point
+     x = [2,-2,-3];
+    
+     r = norm(x-y);
+    
+     d = 0.002*vol.*((y(3)-x(3))./r.^3);
+    
+     displacement = d*1e5
+
+ % 3b)
+
+    xrec = 0;
+    yrec=linspace(-1.875,1.875,31);
+    zrec = 0;
+    
+    disp = zeros(size(yrec));
+    
+    for i = 1:length(yrec)
+
+        r1 = (xrec - x(1))^2 + (yrec(i) - x(2)).^2 + (zrec - x(3))^2;
+
+        dist =sqrt(r1);
+
+        disp(i) = 0.002*vol * (zrec-x(3))./dist.^3;
+    end 
+    
+    figure(1)
+
+    plot(yrec, disp*1e5, 'LineWidth',2)
+    grid on
+    ylabel('Vertical Displacement in [cm]')
+    xlabel('Reciver Distance in [km]')
+    title('Vertical Displacment due to a point source')
+
+
+
+
+clear vars 
+
+% 3c) 
+
+    x = [-1:0.005:1];
+    y = [-0.5:0.005:1.7];
+    z = -3;
+
+    vol = 5^3 *1e-9;
+
+    origin=[0 0 0];
+    yrec=linspace(-1.875,1.875,31);
+
+    [X,Y]=meshgrid(x,y);
+
+    vertical_displacement = zeros(31,1);
+    disp = zeros(length(y), length(x));
+
+    for i = 1:length(yrec)
+
+        dist1 = (X-origin(1)).^2 + (Y-yrec(i)).^2 + (z-origin(3)).^2;
+
+        r = sqrt(dist1).^3;
+        disp = (origin(3)-z)./r;
+       
+        vertical_displacement(i) = 1e5*vol*0.002*sum(disp(:));
+    end 
+
+        figure(3)
+        plot(yrec,vertical_displacement)
+        grid on
+        ylabel('Vertical Displacement in [cm]')
+        xlabel('Reciver Distance in [km]')
+        title('Vertical Displacment due to a plane volume source')
+
+clear var
+
+% 3d)
+    cir = [0:18:342];
+
+    r = 0.3; % diamater gitt som 600m, radius = 300m
+
+    x = r * cosd(cir);
+    y = r * sind(cir);
+    z = zeros(size(x));
+ 
+
+  % 3e)
+
+    sx = [-1:0.005:1];
+    sy = [-0.5:0.005:1.7];
+    sz = -3;
+
+    [SX, SY]=meshgrid(sx,sy);
+
+    v = 5^3 *1e-9;
+    con = 0.002;
+
+    dv = zeros(1, length(x));
+
+for i =1:length(x)
+
+    dist = sqrt((SX - x(i)).^2 + (SY - y(i)).^2 + sz^2);
+    
+    disp = ((0 - sz)./ dist.^3);
+    disp = sum(disp(:));
+
+    dv(i) = 1e5*v*con*disp;
+
+end 
+
+
+% figure(2)
+% 
+%     plot(cir,dv,'*-','LineWidt',2)
+%     xlabel('[Degrees]')
+%     ylabel('Vertical displacement in cm')
+%     title('Vertical Displacement at the circle of receivers')
+% 
+% grid on 
+
+
